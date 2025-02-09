@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Recommendation Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: auto; }
+        label { font-weight: bold; }
+        .section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Personalized Diet Recommendation Form</h2>
+        <form action="submit.php" method="post">
+            
+            <!-- Basic Information -->
+            <div class="section">
+                <h3>Basic Information</h3>
+                <label>Name (Optional):</label>
+                <input type="text" name="name"><br><br>
+                
+                <label>Age:</label>
+                <input type="number" name="age" required><br><br>
+                
+                <label>Gender:</label>
+                <select name="gender" required>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select><br><br>
+                
+                <label>Height (cm):</label>
+                <input type="number" name="height" required><br><br>
+                
+                <label>Weight (kg):</label>
+                <input type="number" name="weight" required><br><br>
+            </div>
+            
+            <!-- Medical History -->
+            <div class="section">
+                <h3>Medical History</h3>
+                <label>Existing Medical Conditions:</label>
+                <textarea name="medical_conditions" placeholder="E.g., Diabetes, Hypertension"></textarea><br><br>
+                
+                <label>Allergies:</label>
+                <textarea name="allergies" placeholder="E.g., Nuts, Dairy"></textarea><br><br>
+                
+                <label>Current Medications / Supplements:</label>
+                <textarea name="medications" placeholder="List any medications or supplements"></textarea><br><br>
+                
+                <label>Digestive Issues:</label>
+                <textarea name="digestive_issues" placeholder="E.g., Acid reflux, IBS"></textarea><br><br>
+                
+                <label>Chronic Pain or Inflammation:</label>
+                <input type="radio" name="chronic_pain" value="yes"> Yes
+                <input type="radio" name="chronic_pain" value="no"> No<br><br>
+            </div>
+            
+            <!-- Fitness Goals -->
+            <div class="section">
+                <h3>Fitness Goals</h3>
+                <label>Primary Goal:</label>
+                <select name="fitness_goal" required>
+                    <option value="weight_loss">Weight Loss</option>
+                    <option value="muscle_gain">Muscle Gain</option>
+                    <option value="maintain">Maintain Weight</option>
+                    <option value="improve_stamina">Improve Stamina</option>
+                </select><br><br>
+                
+                <label>Activity Level:</label>
+                <select name="activity_level" required>
+                    <option value="sedentary">Sedentary</option>
+                    <option value="light">Light Activity (1-2 days/week)</option>
+                    <option value="moderate">Moderate Activity (3-5 days/week)</option>
+                    <option value="high">Very Active (Daily exercise)</option>
+                </select><br><br>
+                
+                <label>Type of Exercises You Do:</label>
+                <textarea name="exercise_type" placeholder="E.g., Cardio, Strength Training, Yoga"></textarea><br><br>
+            </div>
+            
+            <!-- Dietary Preferences -->
+            <div class="section">
+                <h3>Dietary Preferences</h3>
+                <label>Diet Type:</label><br>
+                <input type="radio" name="diet_type" value="vegetarian"> Vegetarian
+                <input type="radio" name="diet_type" value="vegan"> Vegan
+                <input type="radio" name="diet_type" value="pescatarian"> Pescatarian
+                <input type="radio" name="diet_type" value="non_veg"> Non-Vegetarian
+                <input type="radio" name="diet_type" value="other"> Other<br><br>
+                
+                <label>Food Dislikes / Restrictions:</label>
+                <textarea name="food_restrictions" placeholder="E.g., No spicy food, No seafood"></textarea><br><br>
+            </div>
+            
+            <!-- Lifestyle & Habits -->
+            <div class="section">
+                <h3>Lifestyle & Habits</h3>
+                <label>Smoking:</label>
+                <input type="radio" name="smoking" value="yes"> Yes
+                <input type="radio" name="smoking" value="no"> No<br><br>
+                
+                <label>Alcohol Consumption:</label>
+                <input type="radio" name="alcohol" value="yes"> Yes
+                <input type="radio" name="alcohol" value="no"> No<br><br>
+                
+                <label>Stress Levels (1-10):</label>
+                <input type="number" name="stress_level" min="1" max="10"><br><br>
+                
+                <label>Water Intake (Liters per day):</label>
+                <input type="number" name="water_intake" min="0"><br><br>
+            </div>
+            
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

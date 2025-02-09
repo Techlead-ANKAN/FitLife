@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+</head>
+<body>
+    <h1>Profile</h1>
+    <p><strong>Full Name:</strong> {{ user[1] }}</p>
+    <p><strong>Gender:</strong> {{ user[2] }}</p>
+    <p><strong>Date of Birth:</strong> {{ user[3] }}</p>
+    <p><strong>Contact Number:</strong> {{ user[4] }}</p>
+    <p><strong>Email:</strong> {{ user[5] }}</p>
+    <a href="{{ url_for('dashboard') }}"><button>Back to Dashboard</button></a>
+</body>
+</html>

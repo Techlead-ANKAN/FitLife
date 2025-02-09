@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groq AI Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #response {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Groq AI Chat</h1>
+        <textarea id="userInput" placeholder="Ask a question..."></textarea>
+        <button onclick="getResponse()">Get Answer</button>
+        <div id="response"></div>
+    </div>
+
+    <script type="module">
+        import Groq from "https://cdn.jsdelivr.net/npm/groq-sdk@latest/+esm";
+
+        const groq = new Groq({ apiKey: "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" });
+
+        async function getResponse() {
+            const userMessage = document.getElementById("userInput").value;
+            const responseDiv = document.getElementById("response");
+
+            if (!userMessage) {
+                responseDiv.innerHTML = "<p style='color: red;'>Please enter a question.</p>";
+                return;
+            }
+
+            responseDiv.innerHTML = "<p style='color: blue;'>Generating response...</p>";
+
+            try {
+                const completion = await groq.chat.completions.create({
+                    messages: [{ role: "user", content: userMessage }],
+                    model: "llama-3.3-70b-versatile"
+                });
+
+                responseDiv.innerHTML = `<p><strong>Response:</strong> ${completion.choices[0]?.message?.content || "No response"}</p>`;
+            } catch (error) {
+                responseDiv.innerHTML = `<p style='color: red;'>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+
+</body>
+</html>

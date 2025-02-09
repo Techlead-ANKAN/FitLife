@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Recommendation Form</title>
+</head>
+<body>
+    <h2>Diet Recommendation System</h2>
+    <form action="submit.php" method="POST">
+        <h3>Basic Details</h3>
+        Name: <input type="text" name="name" required><br>
+        Age: <input type="number" name="age" required><br>
+        Gender: 
+        <select name="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select><br>
+        Weight (kg): <input type="number" name="weight" required><br>
+        Height (cm): <input type="number" name="height" required><br>
+        Activity Level (1-5): <input type="number" name="activity_level" min="1" max="5" required><br>
+        
+        <h3>Medical Details</h3>
+        Diabetic: <input type="radio" name="diabetic" value="Yes"> Yes
+        <input type="radio" name="diabetic" value="No"> No<br>
+        Allergic: <input type="text" name="allergic" placeholder="Specify or write NA" required><br>
+        Heart Disease: <input type="radio" name="heart_disease" value="Yes"> Yes
+        <input type="radio" name="heart_disease" value="No"> No<br>
+        Blood Pressure: Systole <input type="number" name="systole"> Diastole <input type="number" name="diastole"><br>
+        Pulse: <input type="number" name="pulse"><br>
+        Cholesterol (mg/dL): <input type="number" name="cholesterol"><br>
+        Digestive Problem: <input type="text" name="digestive_problem"><br>
+        Genetic Disorder: <input type="radio" name="genetic_disorder" value="Yes"> Yes
+        <input type="radio" name="genetic_disorder" value="No"> No<br>
+        Anything Else: <textarea name="anything_else"></textarea><br>
+        
+        <h3>Fitness Goal</h3>
+        Body Condition:
+        <select name="body_condition">
+            <option value="Underweight">Underweight</option>
+            <option value="Average">Average</option>
+            <option value="Overweight">Overweight</option>
+        </select><br>
+        Goal:
+        <select name="goal">
+            <option value="Weight Loss">Weight Loss</option>
+            <option value="Muscle Gain">Muscle Gain</option>
+            <option value="Maintenance">Maintenance</option>
+        </select><br>
+        Target Days: <input type="number" name="target_days" min="1" max="90"><br>
+        Exercise Type:
+        <select name="exercise_type">
+            <option value="Cardiac">Cardiac</option>
+            <option value="Strength">Strength</option>
+            <option value="Yoga">Yoga</option>
+            <option value="Others">Others</option>
+        </select><br>
+        Exercise Frequency:
+        <select name="exercise_frequency">
+            <option value="Frequently">Frequently</option>
+            <option value="Moderate">Moderate</option>
+            <option value="Rarely">Rarely</option>
+        </select><br>
+        
+        <h3>Food Preference</h3>
+        <select name="food_preference">
+            <option value="Vegetarian">Vegetarian</option>
+            <option value="Vegan">Vegan</option>
+            <option value="Pescatarian">Pescatarian</option>
+            <option value="Non-Vegetarian">Non-Vegetarian</option>
+            <option value="Keto / Low-carb">Keto / Low-carb</option>
+            <option value="Gluten-free">Gluten-free</option>
+            <option value="Lactose-free">Lactose-free</option>
+            <option value="Mediterranean">Mediterranean</option>
+        </select><br>
+        Food Liked: <textarea name="food_liked"></textarea><br>
+        Food Disliked: <textarea name="food_disliked"></textarea><br>
+        
+        <h3>Lifestyle and Habits</h3>
+        Smoking: <input type="radio" name="smoking" value="Yes"> Yes
+        <input type="radio" name="smoking" value="No"> No<br>
+        Alcoholic: <input type="radio" name="alcoholic" value="Yes"> Yes
+        <input type="radio" name="alcoholic" value="No"> No<br>
+        Any Other Addiction: <textarea name="addiction"></textarea><br>
+        Stress Level (1-5): <input type="number" name="stress_level" min="1" max="5"><br>
+        Sleep Quality (1-5): <input type="number" name="sleep_quality" min="1" max="5"><br>
+        Water Intake per Day (L): <input type="number" name="water_intake" step="0.1"><br>
+        
+        <h3>Special Considerations</h3>
+        Pregnant / Breastfeeding (if applicable): <input type="text" name="pregnant_breastfeeding"><br>
+        Religious or Cultural Preferences: <textarea name="religious_cultural_pref"></textarea><br>
+        Budget Constraints: <textarea name="budget_constraints"></textarea><br>
+        
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Recommendation System</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        h3 {
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="radio"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .button-group {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+
+        .progress {
+            text-align: center;
+            margin: 20px 0;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <h2>Diet Recommendation System</h2>
+    <div class="progress" id="progress">Step 1 of 6</div>
+    
+    <form id="dietForm">
+        <!-- Basic Details -->
+        <div class="section active" id="section1">
+            <h3>Basic Details</h3>
+            Name: <input type="text" name="name" required>
+            Age: <input type="number" name="age" required>
+            Gender: 
+            <select name="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+            Weight (kg): <input type="number" name="weight" required>
+            Height (cm): <input type="number" name="height" required>
+            Activity Level (1-5): <input type="number" name="activity_level" min="1" max="5" required>
+            <div class="button-group">
+                <button type="button" onclick="nextSection(2)">Next</button>
+            </div>
+        </div>
+
+        <!-- Medical Details -->
+        <div class="section" id="section2">
+            <h3>Medical Details</h3>
+            Diabetic: <input type="radio" name="diabetic" value="Yes"> Yes
+            <input type="radio" name="diabetic" value="No"> No
+            Allergic: <input type="text" name="allergic" placeholder="Specify or write NA" required>
+            Heart Disease: <input type="radio" name="heart_disease" value="Yes"> Yes
+            <input type="radio" name="heart_disease" value="No"> No
+            Blood Pressure: Systole <input type="number" name="systole"> Diastole <input type="number" name="diastole">
+            Pulse: <input type="number" name="pulse">
+            Cholesterol (mg/dL): <input type="number" name="cholesterol">
+            Digestive Problem: <input type="text" name="digestive_problem">
+            Genetic Disorder: <input type="radio" name="genetic_disorder" value="Yes"> Yes
+            <input type="radio" name="genetic_disorder" value="No"> No
+            Anything Else: <textarea name="anything_else"></textarea>
+            <div class="button-group">
+                <button type="button" onclick="prevSection(1)">Previous</button>
+                <button type="button" onclick="nextSection(3)">Next</button>
+            </div>
+        </div>
+
+        <!-- Fitness Goal -->
+        <div class="section" id="section3">
+            <h3>Fitness Goal</h3>
+            Body Condition:
+            <select name="body_condition">
+                <option value="Underweight">Underweight</option>
+                <option value="Average">Average</option>
+                <option value="Overweight">Overweight</option>
+            </select>
+            Goal:
+            <select name="goal">
+                <option value="Weight Loss">Weight Loss</option>
+                <option value="Muscle Gain">Muscle Gain</option>
+                <option value="Maintenance">Maintenance</option>
+            </select>
+            Target Days: <input type="number" name="target_days" min="1" max="90">
+            Exercise Type:
+            <select name="exercise_type">
+                <option value="Cardiac">Cardiac</option>
+                <option value="Strength">Strength</option>
+                <option value="Yoga">Yoga</option>
+                <option value="Others">Others</option>
+            </select>
+            Exercise Frequency:
+            <select name="exercise_frequency">
+                <option value="Frequently">Frequently</option>
+                <option value="Moderate">Moderate</option>
+                <option value="Rarely">Rarely</option>
+            </select>
+            <div class="button-group">
+                <button type="button" onclick="prevSection(2)">Previous</button>
+                <button type="button" onclick="nextSection(4)">Next</button>
+            </div>
+        </div>
+
+        <!-- Food Preference -->
+        <div class="section" id="section4">
+            <h3>Food Preference</h3>
+            <select name="food_preference">
+                <option value="Vegetarian">Vegetarian</option>
+                <option value="Vegan">Vegan</option>
+                <option value="Pescatarian">Pescatarian</option>
+                <option value="Non-Vegetarian">Non-Vegetarian</option>
+                <option value="Keto / Low-carb">Keto / Low-carb</option>
+                <option value="Gluten-free">Gluten-free</option>
+                <option value="Lactose-free">Lactose-free</option>
+                <option value="Mediterranean">Mediterranean</option>
+            </select>
+            Food Liked: <textarea name="food_liked"></textarea>
+            Food Disliked: <textarea name="food_disliked"></textarea>
+            <div class="button-group">
+                <button type="button" onclick="prevSection(3)">Previous</button>
+                <button type="button" onclick="nextSection(5)">Next</button>
+            </div>
+        </div>
+
+        <!-- Lifestyle and Habits -->
+        <div class="section" id="section5">
+            <h3>Lifestyle and Habits</h3>
+            Smoking: <input type="radio" name="smoking" value="Yes"> Yes
+            <input type="radio" name="smoking" value="No"> No
+            Alcoholic: <input type="radio" name="alcoholic" value="Yes"> Yes
+            <input type="radio" name="alcoholic" value="No"> No
+            Any Other Addiction: <textarea name="addiction"></textarea>
+            Stress Level (1-5): <input type="number" name="stress_level" min="1" max="5">
+            Sleep Quality (1-5): <input type="number" name="sleep_quality" min="1" max="5">
+            Water Intake per Day (L): <input type="number" name="water_intake" step="0.1">
+            <div class="button-group">
+                <button type="button" onclick="prevSection(4)">Previous</button>
+                <button type="button" onclick="nextSection(6)">Next</button>
+            </div>
+        </div>
+
+        <!-- Special Considerations -->
+        <div class="section" id="section6">
+            <h3>Special Considerations</h3>
+            Pregnant / Breastfeeding (if applicable): <input type="text" name="pregnant_breastfeeding">
+            Religious or Cultural Preferences: <textarea name="religious_cultural_pref"></textarea>
+            Budget Constraints: <textarea name="budget_constraints"></textarea>
+            <div class="button-group">
+                <button type="button" onclick="prevSection(5)">Previous</button>
+                <button type="button" onclick="submitForm()">Submit</button>
+           <a href="diet.html"><button type="button" >Get Recommendation</button></a>
+            </div>
+        </div>
+    </form>
+
+
+
+    <script>
+       const contractABI = [
+	{
+		"inputs": [],
+		"name": "getUserData",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_data",
+				"type": "string"
+			}
+		],
+		"name": "setUserData",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]; // Add your contract ABI here
+        const contractAddress = "0xD828587822308217EB305A2b02E526a7153A969e"; // Add your contract address here
+        let web3;
+        let contract;
+        let userAccount;
+
+        async function initWeb3() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.enable();
+                contract = new web3.eth.Contract(contractABI, contractAddress);
+                const accounts = await web3.eth.getAccounts();
+                userAccount = accounts[0];
+            } else {
+                alert("Please install MetaMask!");
+            }
+        }
+
+        async function submitForm() {
+            await initWeb3();
+            const formData = new FormData(document.getElementById("dietForm"));
+            const data = {};
+            formData.forEach((value, key) => data[key] = value);
+
+            // Store data in blockchain
+            await contract.methods.setUserData(JSON.stringify(data)).send({ from: userAccount });
+
+            // Send data to Groq API via Flask backend
+            const response = await fetch("/recommend", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            document.getElementById("output").innerText = JSON.stringify(result, null, 2);
+        }
+
+        async function retrieveData() {
+            await initWeb3();
+            const data = await contract.methods.getUserData().call({ from: userAccount });
+            document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+        }
+
+
+        function nextSection(next) {
+            document.querySelector('.section.active').classList.remove('active');
+            document.getElementById(`section${next}`).classList.add('active');
+            document.getElementById('progress').textContent = `Step ${next} of 6`;
+        }
+
+        function prevSection(prev) {
+            document.querySelector('.section.active').classList.remove('active');
+            document.getElementById(`section${prev}`).classList.add('active');
+            document.getElementById('progress').textContent = `Step ${prev} of 6`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    min-width: 100vw;
+    min-height: 100vh;
+    background-color: black;
+    color: #e0e0e0;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  h2 {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
+    font-size: 36px;
+    margin-bottom: 20px;
+    padding-top: 4vh;
+  }
+
+  .tab-container {
+    margin-top: 6vh;
+    display: flex;
+    justify-content: center;
+    border-bottom: 2px solid #4a4a4a;
+    margin-bottom: 1em;
+  }
+  
+  .tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    background: black;
+    border: none;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+  }
+  
+  .tab:hover {
+    background: #222;
+  }
+  
+  .tab.active {
+    background-color: rgba(170, 215, 185, 0.2);
+    color: #ffffff;
+    border-bottom: 3px solid #00ff87;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+
+  .chart-container {
+    margin-top: 10vh;
+    height: 40em;
+    width: 50%;
+    margin: none;
+    display: none;
+    background: transparent;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .facility-chart{
+    width: 50em;
+    height: 50em;
+  }
+
+  /* .btn-toggle {
+        width: 10em;
+        height: 3em;
+        margin-left: 10px;
+        color: white;
+        background-color: black;
+        border: 1px solid white; 
+        transition-duration: 1.5s;
+        border-radius: .5em;
+    }
+    .btn-toggle:hover{
+        border-radius: 1.5em;
+        background-color: white;
+        transition-property: all;
+        transition-duration: 1.5s;
+        color: black;
+    } */
+  .btn-toggle {
+    width: 10em;
+    height: 3em;
+    margin-left: 10px;
+    color: white;
+    background-color: black;
+    border: 2px solid #4a4a4a;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0.5em;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transform: translateZ(0);
+  }
+  /* Hover Effect */
+  .btn-toggle:hover {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: white;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px) scale(1.05);
+  }
+  /* Active/Pressed Effect */
+  .btn-toggle:active {
+    transform: scale(0.95);
+    background-color: #e0e0e0;
+    transition-duration: 0.1s;
+  }
+  /* Ripple Effect */
+  .btn-toggle::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    padding-bottom: 120%;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    transition: transform 0.5s, opacity 1s;
+    pointer-events: none;
+  }
+  .btn-toggle:active::after {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 1;
+    transition-duration: 0.3s;
+  }
+  /* Gradient Border Animation */
+  .btn-toggle::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #00ff87, #60efff, #0061ff);
+    border-radius: 0.5em;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .btn-toggle:hover::before {
+    opacity: 1;
+  }
+  /* Active State Border Color */
+  .btn-toggle:active {
+    border-color: #00ff87;
+  }
+  h3 {
+    text-align: center;
+    margin-bottom: 15px;
+  }

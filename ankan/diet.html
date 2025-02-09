@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Catalog</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f0f2f5; }
+        
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; display: flex; justify-content: center; align-items: center;
+            z-index: 1000; transition: opacity 0.3s;
+        }
+        .spinner {
+            width: 80px; height: 80px; border: 8px solid rgba(0, 0, 0, 0.1);
+            border-top: 8px solid #2ecc71; border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* Header */
+        header {
+            background: #2ecc71; color: white; padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); position: relative;
+        }
+        .cart-btn {
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            background: #27ae60; border: none; padding: 8px 15px;
+            color: white; border-radius: 20px; cursor: pointer; transition: 0.3s;
+        }
+        .cart-btn:hover { background: #219a52; }
+        
+        /* Catalog Styling */
+        .catalog-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px; padding: 2rem; max-width: 1200px; margin: 0 auto;
+        }
+        .catalog {
+            background: white; border-radius: 15px; overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); transition: transform 0.3s;
+        }
+        .catalog:hover { transform: translateY(-5px); }
+        .catalog img {
+            width: 100%; height: 200px; object-fit: cover;
+            border-bottom: 3px solid #2ecc71;
+        }
+        .catalog-content { padding: 1rem; }
+        .catalog h3 { color: #2c3e50; margin-bottom: 0.5rem; }
+        .catalog p { color: #7f8c8d; font-size: 0.9rem; margin: 0.3rem 0; }
+        .btn-group { display: flex; gap: 10px; margin-top: 1rem; }
+        .btn {
+            padding: 8px 15px; border: none; border-radius: 5px;
+            cursor: pointer; transition: 0.3s; flex: 1;
+        }
+        .recipe-btn { background: #3498db; color: white; }
+        .cart-add-btn { background: #2ecc71; color: white; }
+        .btn:hover { opacity: 0.9; }
+        
+        /* Modals */
+        .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 2rem; border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); display: none;
+            width: 90%; max-width: 500px; z-index: 2000;
+        }
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none; z-index: 1000;
+        }
+        .cart-item { 
+            display: flex; justify-content: space-between; 
+            padding: 10px 0; border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        .remove-btn { 
+            background: #e74c3c; color: white; border: none; 
+            padding: 3px 8px; border-radius: 3px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .remove-btn:hover { opacity: 0.8; }
+        #cartTotal {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 1rem;
+        }
+        .modal h2 { margin-bottom: 1rem; color: #2c3e50; }
+        #modalContent { line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="spinner"></div>
+    </div>
+
+    <header>
+        <h1>🍏 Healthy Diet Catalog 🥗</h1>
+        <button class="cart-btn" onclick="openCart()">🛒 View Cart (<span id="cart-count">0</span>)</button>
+    </header>
+
+    <div class="catalog-container" id="catalogContainer"></div>
+
+    <!-- Recipe Modal -->
+    <div class="overlay" id="overlay" onclick="closeModal()"></div>
+    <div class="modal" id="modal">
+        <h2 id="modalTitle"></h2>
+        <div id="modalContent"></div>
+        <button class="btn" onclick="closeModal()" style="margin-top: 1rem;">Close</button>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <h2>Your Cart 🛒</h2>
+        <div id="cartItems"></div>
+        <p>Total: <span id="cartTotal">0</span></p>
+        <button class="btn" onclick="closeCart()">Close</button>
+    </div>
+
+    <script>
+        // Loading Screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById("loading-screen").style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById("loading-screen").style.display = 'none';
+                }, 300);
+            }, 1500);
+        });
+
+        // Diet Data (20 items)
+        const diets = [
+    {
+        name: "Avocado Toast",
+        calories: 250,
+        price: 200,
+        ingredients: "Whole grain toast, avocado, cherry tomatoes, salt, pepper",
+        recipe: "1. Toast whole grain bread until golden brown<br>2. Mash avocado in a bowl with a pinch of salt<br>3. Spread avocado mixture evenly on toast<br>4. Top with halved cherry tomatoes and fresh pepper",
+        image: "https://images.unsplash.com/photo-1557844352-761f2565b576"
+    },
+    {
+        name: "Smoothie Bowl",
+        calories: 320,
+        price: 250,
+        ingredients: "Spinach, banana, mixed berries, almond milk, granola, chia seeds",
+        recipe: "1. Blend spinach, banana, berries and almond milk until smooth<br>2. Pour into bowl and top with granola and chia seeds<br>3. Add extra fruit toppings if desired",
+        image: "https://images.unsplash.com/photo-1505252585461-04db1eb84625"
+    },
+    {
+        name: "Overnight Oats",
+        calories: 280,
+        price: 100,
+        ingredients: "Rolled oats, almond milk, honey, fresh fruits",
+        recipe: "1. Mix oats and almond milk in a jar<br>2. Add honey and stir well<br>3. Refrigerate overnight<br>4. Top with fresh fruits before serving",
+        image: "https://images.unsplash.com/photo-1552590635-27c2c2128abf"
+    },
+    {
+        name: "Quinoa Salad",
+        calories: 350,
+        price: 200,
+        ingredients: "Quinoa, cucumbers, cherry tomatoes, bell peppers, lemon-tahini dressing",
+        recipe: "1. Cook quinoa according to package instructions<br>2. Chop vegetables and mix with cooled quinoa<br>3. Drizzle with lemon-tahini dressing and toss",
+        image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe"
+    },
+    {
+        name: "Greek Salad",
+        calories: 300,
+        price: 300,
+        ingredients: "Mixed greens, cucumbers, tomatoes, olives, feta cheese, olive oil",
+        recipe: "1. Combine all vegetables in a bowl<br>2. Crumble feta cheese on top<br>3. Drizzle with olive oil and lemon juice",
+        image: "https://images.unsplash.com/photo-1546549032-9571cd6b27df"
+    },
+    {
+        name: "Vegetable Wrap",
+        calories: 280,
+        price: 150,
+        ingredients: "Whole grain wrap, hummus, mixed greens, carrots, bell peppers",
+        recipe: "1. Spread hummus on wrap<br>2. Layer vegetables evenly<br>3. Roll tightly and slice in half",
+        image: "https://media.istockphoto.com/id/941025092/photo/chicken-wraps.jpg?s=612x612&w=0&k=20&c=MVwZVtHifhEhbkxVyYDxbEo8El7NInTsa7TW_qv8I0k="
+    },
+    {
+        name: "Veggie Sticks with Hummus",
+        calories: 200,
+        price: 90,
+        ingredients: "Carrots, cucumber, celery, hummus",
+        recipe: "1. Cut vegetables into sticks<br>2. Serve with hummus dip",
+        image: "https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf"
+    },
+    {
+        name: "Fruit and Nut Mix",
+        calories: 180,
+        price: 80,
+        ingredients: "Almonds, walnuts, dried cranberries",
+        recipe: "1. Combine equal parts nuts and dried fruits<br>2. Store in airtight container",
+        image: "https://images.unsplash.com/photo-1541658016709-82535e94bc69"
+    },
+    {
+        name: "Apple Slices with Almond Butter",
+        calories: 150,
+        price: 50,
+        ingredients: "Apple, almond butter",
+        recipe: "1. Slice apple into wedges<br>2. Serve with almond butter dip",
+        image: "https://media.istockphoto.com/id/1197953316/photo/sliced-apples-and-almond-butter-a-popular-low-carb-or-keto-snack.jpg?s=612x612&w=0&k=20&c=-elNVnntWD-ItEyNJww6-ynQ0eHKkTbWFUx1lLZ1eLA="
+    },
+    {
+        name: "Grilled Vegetable Skewers",
+        calories: 220,
+        price: 100,
+        ingredients: "Zucchini, bell peppers, cherry tomatoes, mushrooms",
+        recipe: "1. Chop vegetables into chunks<br>2. Thread onto skewers<br>3. Grill until tender",
+        image: "https://images.unsplash.com/photo-1603105037880-880cd4edfb0d"
+    },
+    {
+        name: "Stuffed Bell Peppers",
+        calories: 320,
+        price: 200,
+        ingredients: "Bell peppers, quinoa, black beans, corn, spices",
+        recipe: "1. Cook quinoa and mix with beans/corn<br>2. Stuff peppers and bake at 375°F for 25 mins",
+        image: "https://images.unsplash.com/photo-1604908177453-7462950a6a3b"
+    },
+    {
+        name: "Vegetable Stir-Fry",
+        calories: 280,
+        price: 150,
+        ingredients: "Broccoli, bell peppers, snap peas, tofu, soy sauce",
+        recipe: "1. Sauté vegetables in pan<br>2. Add tofu and soy sauce<br>3. Cook until tender",
+        image: "https://images.unsplash.com/photo-1585032226651-759b368d7246"
+    },
+    {
+        name: "Chickpea Salad",
+        calories: 240,
+        price: 100,
+        ingredients: "Chickpeas, cucumbers, tomatoes, red onions, lemon dressing",
+        recipe: "1. Rinse and drain chickpeas<br>2. Mix with chopped vegetables<br>3. Add dressing and toss",
+        image: "https://media.istockphoto.com/id/663290162/photo/vegetarian-stew-with-chickpeas.jpg?s=2048x2048&w=is&k=20&c=4vVdZ5N9HRWo6eVa-yhw43sqlmqseoLuL-tMepselAk="
+    },
+    {
+        name: "Miso Soup",
+        calories: 120,
+        price: 150,
+        ingredients: "Miso paste, tofu, seaweed, green onions",
+        recipe: "1. Bring water to simmer<br>2. Dissolve miso paste<br>3. Add tofu and seaweed",
+        image: "https://media.istockphoto.com/id/479541866/photo/japanese-miso-soup-in-a-white-bowl-horizontal-top-view.jpg?s=612x612&w=0&k=20&c=HqwxSbGqixIw0PaM7W8zOj0IcuQH2TDPEVNvqKTcS9E="
+    },
+    {
+        name: "Zucchini Noodles",
+        calories: 180,
+        price: 300,
+        ingredients: "Zucchini, tomato sauce, parmesan",
+        recipe: "1. Spiralize zucchini<br>2. Sauté in pan with sauce<br>3. Top with parmesan",
+        image: "https://images.unsplash.com/photo-1591798454113-023d7379221f"
+    },
+    {
+        name: "Green Smoothie",
+        calories: 200,
+        price: 150,
+        ingredients: "Kale, pineapple, banana, coconut water",
+        recipe: "1. Blend all ingredients until smooth<br>2. Serve chilled",
+        image: "https://images.unsplash.com/photo-1540914124281-342587941389"
+    },
+    {
+        name: "Herbal Infusions",
+        calories: 5,
+        price: 250,
+        ingredients: "Chamomile or peppermint tea",
+        recipe: "1. Steep tea bag in hot water<br>2. Let brew for 5 minutes",
+        image: "https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2"
+    },
+    {
+        name: "Cucumber Mint Water",
+        calories: 0,
+        price: 50,
+        ingredients: "Cucumber, mint leaves, water",
+        recipe: "1. Slice cucumber<br>2. Add to water with mint<br>3. Refrigerate 1 hour",
+        image: "https://images.unsplash.com/photo-1551754655-cd27e38d2076"
+    },
+    {
+        name: "Frozen Yogurt Bites",
+        calories: 90,
+        price: 60,
+        ingredients: "Greek yogurt, berries",
+        recipe: "1. Spoon yogurt onto tray<br>2. Top with berries<br>3. Freeze for 2 hours",
+        image: "https://media.istockphoto.com/id/1138438263/photo/kiwi-yogurt-ice-cream-popsicles-healthy-dessert-homemade-product-summer-background.jpg?s=612x612&w=0&k=20&c=NnZq7QiUNA6Iq0uFncfd1oPyFbOF-d_ff_mKR2eF7C4="
+    },
+    {
+        name: "Fruit Salad",
+        calories: 150,
+        price: 50,
+        ingredients: "Watermelon, strawberries, kiwi, blueberries",
+        recipe: "1. Chop all fruits<br>2. Mix in bowl<br>3. Serve chilled",
+        image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d"
+    }
+];
+
+        let cart = [];
+        
+        function displayDiets() {
+        const container = document.getElementById('catalogContainer');
+        // Select 6 random diets
+        const shuffled = diets.slice().sort(() => 0.5 - Math.random());
+        const selectedDiets = shuffled.slice(0, 6);
+
+        selectedDiets.forEach(diet => {
+            const card = document.createElement('div');
+            card.className = 'catalog';
+            card.innerHTML = `
+                <img src="${diet.image}" alt="${diet.name}">
+                <div class="catalog-content">
+                    <h3>${diet.name}</h3>
+                    <p>🔥 ${diet.calories} Calories</p>
+                    <p>${diet.ingredients}</p>
+                    <div class="btn-group">
+                        <button class="btn recipe-btn" onclick="openModal('${diet.name}', '${diet.recipe}')">Recipe</button>
+                        <button class="btn cart-add-btn" onclick="addToCart('${diet.name}')">Add ${diet.price}/-</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+        function openModal(title, content) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').innerHTML = content.replace(/<br>/g, '<br>');
+            document.getElementById('modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // Cart Functions
+        function addToCart(itemName) {
+            const diet = diets.find(d => d.name === itemName);
+            if (diet) cart.push(diet);
+            updateCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function updateCart() {
+    document.getElementById('cart-count').textContent = cart.length;
+    const cartItems = document.getElementById('cartItems');
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    
+    cartItems.innerHTML = cart.map((item, index) => `
+        <div class="cart-item">
+            <span>${item.name}</span>
+            <span>${item.price}/- <button class="remove-btn" onclick="removeFromCart(${index})">×</button></span>
+        </div>
+    `).join('');
+    
+    document.getElementById('cartTotal').textContent = `${total}/-`;
+}
+
+
+        function openCart() {
+            document.getElementById('cartModal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        displayDiets();
+    </script>
+</body>
+</html>

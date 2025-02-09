@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find a Gym Near You - Kolkata</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/next/13.4.1/next.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="find_nearest_gym.css">
+</head>
+<body class="">
+    <div class="div1">
+        <h1 class="find-h1 text-3xl font-bold text-center mb-6">Find a Gym Near You - Kolkata</h1>
+        <div class="grid grid-cols-4 gap-4 mb-4">
+            <select id="facility" class="p-2 border rounded">
+                <option value="">Facility(any)</option>
+                <option value="Basic">Basic</option>
+                <option value="Average">Average</option>
+                <option value="Premium">Premium</option>
+            </select>
+            <select id="ac" class="p-2 border rounded">
+                <option value="">AC/Non-AC</option>
+                <option value="AC">AC</option>
+                <option value="Non-AC">Non-AC</option>
+            </select>
+            <select id="rating" class="p-2 border rounded">
+                <option value="">Rating(any)</option>
+                <option value="5">5</option>
+                <option value="4">4</option>
+                <option value="3">3</option>
+                <option value="2">2</option>
+                <option value="1">1</option>
+            </select>
+            <input type="number" id="maxPrice" class="p-2 border rounded" placeholder="Max Price" min="0">
+        </div>
+        <button onclick="applyFilter()" class="apply-btn">Apply Filter</button>
+    </div>
+    
+    <div id="map" class=""></div>
+    <div id="gymList" class="mt-6 grid grid-cols-2 gap-4"></div>
+
+    
+    <script>
+        const gyms = [
+            { name: "FitLife Gym", facility: "Basic", ac: "Non-AC", rating: 3, price: 1000, lat: 22.5726, lon: 88.3639 },
+            { name: "Gold's Fitness", facility: "Premium", ac: "AC", rating: 5, price: 5000, lat: 22.5500, lon: 88.3500 },
+            { name: "Flex Zone", facility: "Average", ac: "AC", rating: 4, price: 2500, lat: 22.5600, lon: 88.3700 },
+            { name: "Iron Paradise", facility: "Premium", ac: "AC", rating: 5, price: 4500, lat: 22.5900, lon: 88.3400 },
+            { name: "Power House Gym", facility: "Basic", ac: "Non-AC", rating: 2, price: 1200, lat: 22.5300, lon: 88.3600 },
+            { name: "Muscle Factory", facility: "Average", ac: "AC", rating: 3, price: 2200, lat: 22.5550, lon: 88.3550 },
+            { name: "Ultimate Fitness", facility: "Premium", ac: "AC", rating: 5, price: 4800, lat: 22.5800, lon: 88.3900 },
+            { name: "Kolkata Gym", facility: "Basic", ac: "Non-AC", rating: 1, price: 900, lat: 22.5400, lon: 88.3800 },
+            { name: "The Beast Gym", facility: "Average", ac: "Non-AC", rating: 3, price: 1800, lat: 22.5650, lon: 88.3750 },
+            { name: "Titan Gym", facility: "Premium", ac: "AC", rating: 5, price: 5000, lat: 22.6000, lon: 88.3200 }
+        ];
+    
+        // Initialize the map
+        const map = L.map('map').setView([22.5726, 88.3639], 12);
+    
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+    
+        // Custom marker icon
+        const gymIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', // Replace with your custom icon URL
+            iconSize: [40, 40], // Width, height in pixels
+            iconAnchor: [20, 40], // Anchor point for accurate positioning
+            popupAnchor: [0, -40] // Position where popup opens relative to icon
+        });
+    
+        function applyFilter() {
+            const facility = document.getElementById('facility').value;
+            const ac = document.getElementById('ac').value;
+            const rating = document.getElementById('rating').value;
+            const maxPrice = document.getElementById('maxPrice').value;
+    
+            document.getElementById('gymList').innerHTML = "";
+    
+            // Remove existing markers before applying new filters
+            map.eachLayer(layer => {
+                if (!!layer.toGeoJSON) map.removeLayer(layer);
+            });
+    
+            // Re-add map tiles after clearing
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+    
+            // Filter and display gyms
+            gyms.filter(gym =>
+                (!facility || gym.facility === facility) &&
+                (!ac || gym.ac === ac) &&
+                (!rating || gym.rating == rating) &&
+                (!maxPrice || gym.price <= maxPrice)
+            ).forEach(gym => {
+                L.marker([gym.lat, gym.lon], { icon: gymIcon }) // Use custom icon
+                    .addTo(map)
+                    .bindPopup(`
+                        <div class="popup-content">
+                            <b>${gym.name}</b><br>
+                            Facility: ${gym.facility}<br>
+                            AC: ${gym.ac}<br>
+                            Rating: ${gym.rating}<br>
+                            Price: ₹${gym.price}/month
+                        </div>
+                    `);
+    
+                document.getElementById('gymList').innerHTML += `
+                    <div class='p-4 bg-white shadow-lg rounded'>
+                        <b>${gym.name}</b><br>
+                        Facility: ${gym.facility}<br>
+                        AC: ${gym.ac}<br>
+                        Rating: ${gym.rating}<br>
+                        Price: ₹${gym.price}/month
+                    </div>
+                `;
+            });
+        }
+    
+        // Run filter initially to show all gyms
+        applyFilter();
+    </script>
+    
+</body>
+</html>

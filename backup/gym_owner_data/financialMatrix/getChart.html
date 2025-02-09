@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gym Financial Data</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .output {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+    .chart-container {
+      margin-top: 20px;
+      width: 80%;
+      margin: 20px auto;
+    }
+    canvas {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gym Financial Data Input</h1>
+  <form id="financialForm">
+    <label for="month">Month:</label>
+    <select id="month" required>
+      <option value="Jan">January</option>
+      <option value="Feb">February</option>
+      <option value="Mar">March</option>
+      <option value="Apr">April</option>
+      <option value="May">May</option>
+      <option value="Jun">June</option>
+      <option value="Jul">July</option>
+      <option value="Aug">August</option>
+      <option value="Sep">September</option>
+      <option value="Oct">October</option>
+      <option value="Nov">November</option>
+      <option value="Dec">December</option>
+    </select>
+
+    <label for="year">Year:</label>
+    <input type="number" id="year" min="2000" max="2100" required>
+
+    <label for="mrr">MRR ($):</label>
+    <input type="number" id="mrr" step="0.01" required>
+
+    <label for="arpm">ARPM ($):</label>
+    <input type="number" id="arpm" step="0.01" required>
+
+    <label for="profitMargin">Profit Margin (%):</label>
+    <input type="number" id="profitMargin" step="0.01" required>
+
+    <button type="submit">Save Data</button>
+  </form>
+
+  <button id="retrieveButton">Retrieve Data</button>
+  <button id="analyticsButton">See Analytics</button>
+
+  <div class="output" id="output"></div>
+
+  <!-- Chart Containers -->
+  <div class="chart-container">
+    <canvas id="lineChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="barChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="pieChart"></canvas>
+  </div>
+
+  <!-- Include Web3.js and Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.7.4/dist/web3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    // Placeholder for ABI and Contract Address
+    const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_month",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_year",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_mrr",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_arpm",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_profitMargin",
+				"type": "uint256"
+			}
+		],
+		"name": "addFinancialData",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "financialData",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "month",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "year",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "mrr",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "arpm",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "profitMargin",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllFinancialData",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "month",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "year",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "mrr",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "arpm",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "profitMargin",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct GymFinancialData.FinancialData[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+    const contractAddress = "0x5c5b46BB0ac77870670D5360609C4CBcaD63cA53"; // Replace with your contract address
+
+    // Initialize Web3
+    let web3;
+    let contract;
+
+    if (typeof window.ethereum !== 'undefined') {
+      web3 = new Web3(window.ethereum);
+      window.ethereum.enable().then(() => {
+        contract = new web3.eth.Contract(contractABI, contractAddress);
+        console.log("Web3 and contract initialized successfully!");
+      });
+    } else {
+      alert("Please install MetaMask or another Ethereum wallet to use this application.");
+    }
+
+    // Save Data to Smart Contract
+    document.getElementById('financialForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const month = document.getElementById('month').value;
+      const year = document.getElementById('year').value;
+      const mrr = document.getElementById('mrr').value;
+      const arpm = document.getElementById('arpm').value;
+      const profitMargin = document.getElementById('profitMargin').value;
+
+      const accounts = await web3.eth.getAccounts();
+      const sender = accounts[0];
+
+      try {
+        await contract.methods.addFinancialData(month, year, mrr, arpm, profitMargin).send({ from: sender });
+        alert("Data saved successfully!");
+      } catch (error) {
+        console.error("Error saving data:", error);
+        alert("Failed to save data. Check the console for details.");
+      }
+    });
+
+    // Retrieve Data from Smart Contract
+    document.getElementById('retrieveButton').addEventListener('click', async () => {
+      try {
+        const data = await contract.methods.getAllFinancialData().call();
+        const output = document.getElementById('output');
+        output.innerHTML = "<h2>Stored Financial Data:</h2>";
+
+        if (data.length === 0) {
+          output.innerHTML += "<p>No data found.</p>";
+        } else {
+          data.forEach((entry, index) => {
+            output.innerHTML += `
+              <p><strong>Entry ${index + 1}:</strong></p>
+              <ul>
+                <li>Month: ${entry.month}</li>
+                <li>Year: ${entry.year}</li>
+                <li>MRR: $${entry.mrr}</li>
+                <li>ARPM: $${entry.arpm}</li>
+                <li>Profit Margin: ${entry.profitMargin}%</li>
+              </ul>
+            `;
+          });
+        }
+      } catch (error) {
+        console.error("Error retrieving data:", error);
+        alert("Failed to retrieve data. Check the console for details.");
+      }
+    });
+
+    // Plot Analytics Charts
+    document.getElementById('analyticsButton').addEventListener('click', async () => {
+      try {
+        const data = await contract.methods.getAllFinancialData().call();
+
+        if (data.length === 0) {
+          alert("No data found to plot analytics.");
+          return;
+        }
+
+        // Prepare data for charts
+        const labels = data.map(entry => `${entry.month} ${entry.year}`);
+        const mrrData = data.map(entry => entry.mrr);
+        const arpmData = data.map(entry => entry.arpm);
+        const profitMarginData = data.map(entry => entry.profitMargin);
+
+        // Line Chart for MRR
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        new Chart(lineCtx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'MRR ($)',
+              data: mrrData,
+              borderColor: '#007BFF',
+              fill: false,
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: { title: { display: true, text: 'Month/Year' } },
+              y: { title: { display: true, text: 'MRR ($)' } }
+            }
+          }
+        });
+
+        // Bar Chart for ARPM
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'ARPM ($)',
+              data: arpmData,
+              backgroundColor: '#28a745',
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: { title: { display: true, text: 'Month/Year' } },
+              y: { title: { display: true, text: 'ARPM ($)' } }
+            }
+          }
+        });
+
+        // Pie Chart for Profit Margin
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+          type: 'pie',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Profit Margin (%)',
+              data: profitMarginData,
+              backgroundColor: [
+                '#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40'
+              ],
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'top' },
+              title: { display: true, text: 'Profit Margin Distribution (%)' }
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error("Error plotting analytics:", error);
+        alert("Failed to plot analytics. Check the console for details.");
+      }
+    });
+  </script>
+</body>
+</html>

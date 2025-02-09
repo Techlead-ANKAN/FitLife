@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Groq</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+        .chat-message {
+            margin: 10px 0;
+        }
+        .user-message {
+            text-align: right;
+        }
+        .bot-message {
+            text-align: left;
+        }
+        .message {
+            display: inline-block;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 5px;
+        }
+        .user-message .message {
+            background-color: #007bff;
+            color: white;
+        }
+        .bot-message .message {
+            background-color: #e2e2e2;
+            color: black;
+        }
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+        .chat-input button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>Chat with Groq</h2>
+    </div>
+    <div class="chat-box" id="chat-box"></div>
+    <div class="chat-input">
+        <input type="text" id="user-input" placeholder="Type your message..." />
+        <button id="send-button">Send</button>
+    </div>
+</div>
+
+<script>
+    document.getElementById('send-button').addEventListener('click', function() {
+        const userInput = document.getElementById('user-input').value;
+        if (userInput.trim() === "") return;
+
+        // Add user message to chat box
+        addMessage(userInput, 'user');
+
+        // Clear input
+        document.getElementById('user-input').value = '';
+
+        // Send request to Flask backend
+        fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+            addMessage(data.response, 'bot');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    function addMessage(message, type) {
+        const chatBox = document.getElementById('chat-box');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${type}-message`;
+        messageDiv.innerHTML = `<div class="message">${message.replace(/\n/g, "<br/>")}</div>`;
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
+    }
+
+    document.getElementById('user-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('send-button').click();
+        }
+    });
+</script>
+</body>
+</html>

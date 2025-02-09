@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Recommendation System</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+</head>
+<body>
+    <h2>Diet Recommendation System</h2>
+    <form id="dietForm">
+        <!-- Form fields remain the same as before -->
+    </form>
+
+    <div id="output"></div>
+
+    <script>
+        const contractABI = []; // Add your contract ABI here
+        const contractAddress = "0xYourContractAddress"; // Add your contract address here
+        let web3;
+        let contract;
+        let userAccount;
+
+        async function initWeb3() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.enable();
+                contract = new web3.eth.Contract(contractABI, contractAddress);
+                const accounts = await web3.eth.getAccounts();
+                userAccount = accounts[0];
+            } else {
+                alert("Please install MetaMask!");
+            }
+        }
+
+        async function submitForm() {
+            await initWeb3();
+            const formData = new FormData(document.getElementById("dietForm"));
+            const data = {};
+            formData.forEach((value, key) => data[key] = value);
+
+            // Store data in blockchain
+            await contract.methods.setUserData(
+                data.name,
+                parseInt(data.age),
+                data.gender,
+                parseInt(data.weight),
+                parseInt(data.height),
+                parseInt(data.activity_level),
+                data.diabetic,
+                data.allergic,
+                data.heart_disease,
+                parseInt(data.systole),
+                parseInt(data.diastole),
+                parseInt(data.pulse),
+                parseInt(data.cholesterol),
+                data.digestive_problem,
+                data.genetic_disorder,
+                data.anything_else,
+                data.body_condition,
+                data.goal,
+                parseInt(data.target_days),
+                data.exercise_type,
+                data.exercise_frequency,
+                data.food_preference,
+                data.food_liked,
+                data.food_disliked,
+                data.smoking,
+                data.alcoholic,
+                data.addiction,
+                parseInt(data.stress_level),
+                parseInt(data.sleep_quality),
+                parseFloat(data.water_intake),
+                data.pregnant_breastfeeding,
+                data.religious_cultural_pref,
+                data.budget_constraints
+            ).send({ from: userAccount });
+
+            // Send data to Groq API via Flask backend
+            const response = await fetch("/recommend", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            document.getElementById("output").innerText = JSON.stringify(result, null, 2);
+        }
+
+        async function retrieveData() {
+            await initWeb3();
+            const data = await contract.methods.getUserData().call({ from: userAccount });
+            document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>

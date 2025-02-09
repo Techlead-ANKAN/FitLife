@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Catalog</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f5f5; text-align: center; }
+        
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .spinner {
+            width: 80px; height: 80px; border: 8px solid rgba(0, 0, 0, 0.1);
+            border-top: 8px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* Catalog Styling */
+        .catalog-container {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            padding: 20px; gap: 20px;
+        }
+        .catalog {
+            width: 250px; background: #fff; border-radius: 15px; padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); transform: scale(1);
+            transition: transform 0.3s ease-in-out;
+        }
+        .catalog:hover { transform: scale(1.05); }
+        .catalog img { width: 100%; border-radius: 10px; }
+        .catalog h3 { margin: 10px 0; }
+        .catalog p { font-size: 14px; }
+        .catalog button {
+            margin-top: 10px; background: #3498db; color: white; border: none;
+            padding: 8px 12px; cursor: pointer; border-radius: 5px;
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); display: none;
+            width: 90%; max-width: 500px; z-index: 2000;
+        }
+        .modal button { margin-top: 10px; background: red; color: white; padding: 8px; }
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); display: none; z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="spinner"></div>
+    </div>
+    
+    <h1>🍽️ Healthy Diet Catalog 🍏</h1>
+    <div class="catalog-container" id="catalogContainer"></div>
+    
+    <div class="overlay" id="overlay"></div>
+    <div class="modal" id="modal">
+        <h2 id="modalTitle"></h2>
+        <p id="modalContent"></p>
+        <button onclick="closeModal()">Close</button>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(() => { document.getElementById("loading-screen").style.display = "none"; }, 8000);
+        });
+        
+        const diets = [
+            { name: "Avocado Toast 🥑", calories: 250, price: "$5", ingredients: "Carbs: 40%, Protein: 20%, Fat: 40%", recipe: "Toast bread, mash avocado, top with tomatoes and serve!",image : "https://afm-6b83.kxcdn.com/wp-content/uploads/2016/11/avocado-hub.jpg" },
+            { name: "Smoothie Bowl 🍓", calories: 300, price: "$6", ingredients: "Carbs: 50%, Protein: 15%, Fat: 35%", recipe: "Blend spinach, banana, berries, and almond milk, top with granola!" },
+            { name: "Quinoa Salad 🥗", calories: 320, price: "$7", ingredients: "Carbs: 45%, Protein: 25%, Fat: 30%", recipe: "Mix quinoa with cucumbers, tomatoes, and lemon dressing!" },
+            { name: "Greek Salad 🧀", calories: 280, price: "$6", ingredients: "Carbs: 35%, Protein: 30%, Fat: 35%", recipe: "Toss greens with feta, olives, and lemon juice!" },
+            { name: "Veggie Wrap 🌯", calories: 350, price: "$7", ingredients: "Carbs: 50%, Protein: 20%, Fat: 30%", recipe: "Fill whole grain wrap with hummus and veggies!" },
+            { name: "Grilled Veg Skewers 🍢", calories: 270, price: "$8", ingredients: "Carbs: 30%, Protein: 25%, Fat: 45%", recipe: "Grill zucchini, bell peppers, tomatoes, and mushrooms!" },
+            { name: "Miso Soup 🍜", calories: 180, price: "$4", ingredients: "Carbs: 20%, Protein: 40%, Fat: 40%", recipe: "Boil miso with tofu and seaweed!" }
+        ];
+        
+        function getRandomDiets() {
+            let selected = [];
+            while (selected.length < 6) {
+                let rand = diets[Math.floor(Math.random() * diets.length)];
+                if (!selected.includes(rand)) selected.push(rand);
+            }
+            return selected;
+        }
+        
+        function displayDiets() {
+            const catalogContainer = document.getElementById("catalogContainer");
+            let randomDiets = getRandomDiets();
+            
+            randomDiets.forEach(diet => {
+                let catalog = document.createElement("div");
+                catalog.classList.add("catalog");
+                catalog.innerHTML = `
+                    <h3>${diet.name}</h3>
+                    <p>Calories: ${diet.calories}</p>
+                    <p>Price: ${diet.price}</p>
+                    <p>${diet.ingredients}</p>
+                    <button onclick="openModal('${diet.name}', '${diet.recipe}')">View Recipe</button>
+                `;
+                catalogContainer.appendChild(catalog);
+            });
+        }
+        
+        function openModal(title, content) {
+            document.getElementById("modalTitle").innerText = title;
+            document.getElementById("modalContent").innerText = content;
+            document.getElementById("modal").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
+        }
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+        }
+        
+        displayDiets();
+    </script>
+</body>
+</html>

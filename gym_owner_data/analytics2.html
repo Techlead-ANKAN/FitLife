@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gym Analytics Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="analytics.css">
+    <script src="analytics.js"></script>
+  </head>
+
+  <body>
+    <h2>Gym Analytics Dashboard</h2>
+
+    <div class="tab-container">
+      <button class="tab" onclick="showChart('checkinChart', this)">Check-in Frequency</button>
+      <button class="tab" onclick="showChart('popularTimesChart', this)">Popular Times</button>
+      <button class="tab" onclick="showChart('classAttendanceChart', this)">Class Attendance</button>
+      <button class="tab" onclick="showChart('trainerUtilizationChart', this)">Trainer Utilization</button>
+      <button class="tab" onclick="showChart('facilityUsageChart', this)">Facility Usage</button>
+      <button class="tab" onclick="showChart('retentionRateChart', this)">Retention Rate</button>
+      <button class="tab" onclick="showChart('memberDemographicsChart', this)">Member Demographics</button>
+      <button class="tab" onclick="showChart('workoutTrendsChart', this)">Workout Trends</button>
+    </div>
+
+    <div class="chart-container">
+      <h3>Check-in Frequency</h3>
+      <canvas id="checkinChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Popular Times</h3>
+      <canvas id="popularTimesChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Class Attendance</h3>
+      <canvas id="classAttendanceChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Trainer Utilization</h3>
+      <canvas id="trainerUtilizationChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Facility Usage</h3>
+      <canvas id="facilityUsageChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Retention Rate</h3>
+      <canvas id="retentionRateChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Member Demographics</h3>
+      <canvas id="memberDemographicsChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Workout Trends</h3>
+      <canvas id="workoutTrendsChart"></canvas>
+    </div>
+
+    
+  </body>
+</html>

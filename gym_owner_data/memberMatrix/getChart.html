@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Membership Data</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .output {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+    .chart-container {
+      margin-top: 20px;
+      width: 80%;
+      margin: 20px auto;
+    }
+    canvas {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Membership Data Input</h1>
+  <form id="dataForm">
+    <label for="month">Month:</label>
+    <select id="month" required>
+      <option value="Jan">January</option>
+      <option value="Feb">February</option>
+      <option value="Mar">March</option>
+      <option value="Apr">April</option>
+      <option value="May">May</option>
+      <option value="Jun">June</option>
+      <option value="Jul">July</option>
+      <option value="Aug">August</option>
+      <option value="Sep">September</option>
+      <option value="Oct">October</option>
+      <option value="Nov">November</option>
+      <option value="Dec">December</option>
+    </select>
+
+    <label for="year">Year:</label>
+    <input type="number" id="year" min="2000" max="2100" required>
+
+    <label for="newMemberships">New Memberships:</label>
+    <input type="number" id="newMemberships" required>
+
+    <label for="cancellations">Cancellations:</label>
+    <input type="number" id="cancellations" required>
+
+    <label for="retentionRate">Retention Rate (%):</label>
+    <input type="number" id="retentionRate" step="0.01" required>
+
+    <button type="submit">Save Data</button>
+  </form>
+
+  <button id="retrieveButton">Retrieve Data</button>
+  <button id="analyticsButton">See Analytics</button>
+
+  <div class="output" id="output"></div>
+
+  <!-- Chart Containers -->
+  <div class="chart-container">
+    <canvas id="mixedChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="gaugeChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="radarChart"></canvas>
+  </div>
+
+  <!-- Include Web3.js and Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.7.4/dist/web3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-gauge@0.3.0/dist/chartjs-gauge.min.js"></script>
+
+  <script>
+    // Placeholder for ABI and Contract Address
+    const contractABI = [
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "month",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "year",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newMemberships",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "cancellations",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "retentionRate",
+				"type": "uint256"
+			}
+		],
+		"name": "DataAdded",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_month",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_year",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_newMemberships",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_cancellations",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_retentionRate",
+				"type": "uint256"
+			}
+		],
+		"name": "addData",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "data",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "month",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "year",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "newMemberships",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "cancellations",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "retentionRate",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllData",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "month",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "year",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "newMemberships",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "cancellations",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "retentionRate",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct MembershipData.Data[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+    const contractAddress = "0xdD9756865703d83a223796c5EEFF407E644C1762"; // Replace with your contract address
+
+    // Initialize Web3
+    let web3;
+    let contract;
+
+    if (typeof window.ethereum !== 'undefined') {
+      web3 = new Web3(window.ethereum);
+      window.ethereum.enable().then(() => {
+        contract = new web3.eth.Contract(contractABI, contractAddress);
+        console.log("Web3 and contract initialized successfully!");
+      });
+    } else {
+      alert("Please install MetaMask or another Ethereum wallet to use this application.");
+    }
+
+    // Save Data to Smart Contract
+    document.getElementById('dataForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const month = document.getElementById('month').value;
+      const year = document.getElementById('year').value;
+      const newMemberships = document.getElementById('newMemberships').value;
+      const cancellations = document.getElementById('cancellations').value;
+      const retentionRate = document.getElementById('retentionRate').value;
+
+      const accounts = await web3.eth.getAccounts();
+      const sender = accounts[0];
+
+      try {
+        await contract.methods.addData(month, year, newMemberships, cancellations, retentionRate).send({ from: sender });
+        alert("Data saved successfully!");
+      } catch (error) {
+        console.error("Error saving data:", error);
+        alert("Failed to save data. Check the console for details.");
+      }
+    });
+
+    // Retrieve Data from Smart Contract
+    document.getElementById('retrieveButton').addEventListener('click', async () => {
+      try {
+        const data = await contract.methods.getAllData().call();
+        const output = document.getElementById('output');
+        output.innerHTML = "<h2>Stored Data:</h2>";
+
+        if (data.length === 0) {
+          output.innerHTML += "<p>No data found.</p>";
+        } else {
+          data.forEach((entry, index) => {
+            output.innerHTML += `
+              <p><strong>Entry ${index + 1}:</strong></p>
+              <ul>
+                <li>Month: ${entry.month}</li>
+                <li>Year: ${entry.year}</li>
+                <li>New Memberships: ${entry.newMemberships}</li>
+                <li>Cancellations: ${entry.cancellations}</li>
+                <li>Retention Rate: ${entry.retentionRate}%</li>
+              </ul>
+            `;
+          });
+        }
+      } catch (error) {
+        console.error("Error retrieving data:", error);
+        alert("Failed to retrieve data. Check the console for details.");
+      }
+    });
+
+    // Plot Analytics Charts
+    document.getElementById('analyticsButton').addEventListener('click', async () => {
+      try {
+        const data = await contract.methods.getAllData().call();
+
+        if (data.length === 0) {
+          alert("No data found to plot analytics.");
+          return;
+        }
+
+        // Prepare data for charts
+        const labels = data.map(entry => `${entry.month} ${entry.year}`);
+        const newMembershipsData = data.map(entry => entry.newMemberships);
+        const cancellationsData = data.map(entry => entry.cancellations);
+        const retentionRateData = data.map(entry => entry.retentionRate);
+
+        // Mixed Chart (Line + Bar)
+        const mixedCtx = document.getElementById('mixedChart').getContext('2d');
+        new Chart(mixedCtx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'New Memberships',
+                data: newMembershipsData,
+                borderColor: '#007BFF',
+                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                type: 'line',
+                fill: false,
+              },
+              {
+                label: 'Cancellations',
+                data: cancellationsData,
+                backgroundColor: '#ff6384',
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: { title: { display: true, text: 'Month/Year' } },
+              y: { title: { display: true, text: 'Count' } }
+            }
+          }
+        });
+
+        // Gauge Chart for Retention Rate
+        const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+        new Chart(gaugeCtx, {
+          type: 'gauge',
+          data: {
+            labels: ['Retention Rate'],
+            datasets: [{
+              data: [retentionRateData[retentionRateData.length - 1]], // Latest retention rate
+              backgroundColor: ['#28a745'],
+            }]
+          },
+          options: {
+            responsive: true,
+            title: { display: true, text: 'Retention Rate (%)' },
+            needle: { radiusPercentage: 2, widthPercentage: 3.2, lengthPercentage: 80, color: 'rgba(0, 0, 0, 1)' },
+            valueLabel: { display: true, formatter: (value) => value + '%' },
+          }
+        });
+
+        // Radar Chart for Latest Month
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        new Chart(radarCtx, {
+          type: 'radar',
+          data: {
+            labels: ['New Memberships', 'Cancellations', 'Retention Rate'],
+            datasets: [{
+              label: `${labels[labels.length - 1]}`, // Latest month/year
+              data: [
+                newMembershipsData[newMembershipsData.length - 1],
+                cancellationsData[cancellationsData.length - 1],
+                retentionRateData[retentionRateData.length - 1],
+              ],
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderColor: '#ff6384',
+            }]
+          },
+          options: {
+            responsive: true,
+            scale: {
+              ticks: { beginAtZero: true },
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error("Error plotting analytics:", error);
+        alert("Failed to plot analytics. Check the console for details.");
+      }
+    });
+  </script>
+</body>
+</html>
