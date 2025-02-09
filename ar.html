@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Model on Webcam</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            background-color: black;
+        }
+        #webcam {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
+        model-viewer {
+            width: 100%;
+            max-width: 600px;
+            height: 500px;
+        }
+        .slider-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        input[type="range"] {
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Webcam Background -->
+    <video id="webcam" autoplay playsinline></video>
+
+    <!-- 3D Model with Animation and AR -->
+    <model-viewer 
+        id="model-viewer"
+        src="your_model.glb" 
+        ar 
+        ar-modes="webxr scene-viewer quick-look" 
+        camera-controls 
+        tone-mapping="neutral" 
+        shadow-intensity="1" 
+        autoplay
+        animation-name="*"
+        interaction-prompt="auto"
+        scale="1 1 1">
+        
+        <!-- AR Button -->
+        <button slot="ar-button" id="ar-button">
+            View in your space
+        </button>
+    </model-viewer>
+
+    <!-- Slider for Model Size -->
+    <div class="slider-container">
+        <label for="size-slider" style="color: white;">Model Size:</label>
+        <input type="range" id="size-slider" min="0.5" max="3" step="0.01" value="1">
+    </div>
+
+    <script>
+        // Start Webcam
+        const video = document.getElementById('webcam');
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((error) => {
+                console.error("Error accessing webcam:", error);
+            });
+
+        // Resize Model with Slider
+        document.getElementById("size-slider").addEventListener("input", (event) => {
+            let scaleValue = event.target.value;
+            let model = document.getElementById("model-viewer");
+            model.setAttribute("scale", `${scaleValue} ${scaleValue} ${scaleValue}`);
+        });
+    </script>
+
+</body>
+</html>
