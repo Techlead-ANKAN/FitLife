@@ -4,6 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <style>
+ body {
+            background-color: #121212;
+            color: #FFD700;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #FFA500;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+        .btn {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #FFF;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+        }
+        .btn:hover {
+            background: linear-gradient(45deg, #FFA500, #FFD700);
+            transform: scale(1.1);
+        }
+        .disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .btn:not(.disabled):hover {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 1);
+        }
+
+
+
+    </style>
 </head>
 <body>
     <h1>Welcome to Dashboard</h1>

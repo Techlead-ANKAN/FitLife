@@ -5,19 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Four Buttons</title>
     <style>
+        <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background: #121212;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
             flex-direction: column;
-            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            z-index: 2;
         }
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            width: 250px;
+            padding: 20px;
+            font-size: 20px;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            border: none;
+            border-radius: 10px;
+            color: white;
             cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
         }
+        button:hover {
+            transform: scale(1.1);
+            background: linear-gradient(45deg, #ff4b2b, #ff416c);
+        }
+        .side-image {
+            position: absolute;
+            top: 0;
+            width: 300px;
+            height: 100vh;
+            overflow-y: scroll;
+        }
+        .left-img {
+            left: 0;
+            background: url('https://media.istockphoto.com/id/1449353914/photo/fitness-gym-and-black-man-doing-a-workout-with-weights-for-strength-wellness-and-training.jpg?s=612x612&w=0&k=20&c=ozKkP-4W7Fg7c77s3-gE7QsxX51BJVEKi6LOxIMk8M0=') no-repeat center/cover;
+        }
+        .right-img {
+            right: 0;
+            background: url('https://cdn-magazine.nutrabay.com/wp-content/uploads/2023/02/strong-bodybuilder-doing-heavy-weight-exercise-back-machine-1-1067x800.jpg')
+        }</style>
     </style>
 </head>
 <body>
